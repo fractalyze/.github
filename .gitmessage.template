@@ -16,14 +16,19 @@ Related: #<issue number>
 # =======================
 
 
-# ─── Example: Simple refactor ────────────────────────────────────────────────┤
-# refactor: remove system dictator
+# ─── Example: Refactor ──────────────────────────────────────────────────────┤
+# refactor(field): rename `field.f{2,3,4}.constant` to `create`
 #
-# Since the owner of all contracts in this system is ProxyAdmin, SystemDictator
-# is no longer necessary. Additionally, the deployment scripts have been
-# modified to update the proxy when deploying implementation contracts.
+# Renames `field.f{2,3,4}.constant` to `create` to align with the conventions
+# of the MLIR `complex` dialect.
 #
-# Resolves: #36332
+# Just as `complex.constant` accepts attributes and `complex.create` accepts
+# values, this commit renames the operations that construct extension fields
+# from values to `create`.
+#
+# See:
+# - https://mlir.llvm.org/docs/Dialects/ComplexOps/#complexconstant-complexconstantop
+# - https://mlir.llvm.org/docs/Dialects/ComplexOps/#complexcreate-complexcreateop
 # ─────────────────────────────────────────────────────────────────────────────┤
 
 
@@ -33,22 +38,29 @@ Related: #<issue number>
 
 
 # ─── Example: A bug fix ──────────────────────────────────────────────────────┤
-# fix(trie): use hash once on account to compute path
+# fix!: fix `mod_arith.constant` parsing bugs and centralize validation
 #
-# Path must be computed using poseidon hash once. But, by mistake, it
-# was computed using poseidon hash twice.
+# Fixes several bugs in the `mod_arith.constant` parsing logic and improves
+# structure.
+#
+# 1. **Sign Issue Fixed:** Corrects a bug where large prime field constants were
+#   incorrectly treated as negative integers, causing parsing failures.
+# 2. **Validation Centralized:** Redundant modulus validation is removed; checks
+#   now occur during type parsing.
+# 3. **Tensor Type Validation:** Adds necessary type validation for
+#   `DenseModArithElementsAttr`.
+#
+# BREAKING CHANGE: `mod_arith.constant` now only allows values within the
+# modulus range.
 # ─────────────────────────────────────────────────────────────────────────────┤
 
 # ─── Example: A feature ──────────────────────────────────────────────────────┤
-# feat!: use keccak256 for codehash
+# feat(mod_arith): allow prime field with same modulus and storage bits
 #
-# BREAKING CHANGE: Previously, codehash was calculated using poseidon.
-# So the state root since this commit will be produced differently.
+# Previously, there was no logic to handle carry when performing addition and
+# double operations. This commit handles overflow when it happens.
 #
-# See below for details.
-#
-# - https://eips.ethereum.org/EIPS/eip-1052
-# - https://github.com/scroll-tech/go-ethereum/pull/188
+# Resolves: #92
 # ─────────────────────────────────────────────────────────────────────────────┤
 
 # Commit Message Format
