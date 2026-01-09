@@ -4,7 +4,13 @@
 
 ## Related Issues/PRs
 
-<!-- Link related GitHub issues or PRs -->
+<!--
+Link related GitHub issues (e.g., #123, https://github.com/.../issues/123)
+and related PRs. If a PR is a dependency (i.e., must be merged before this one), please note it.
+Example:
+- related to #123
+- depends on #790
+-->
 
 ## Checklist
 
