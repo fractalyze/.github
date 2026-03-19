@@ -110,17 +110,49 @@ jobs:
 
             let item = result.node.projectItems.nodes.find(i => i.project.id === PROJECT_ID);
 
-            // If not in project yet, add it
+            // If not in project yet, add it (handle race condition with concurrent workflows)
             if (!item) {
               core.info("PR not in project, adding...");
-              const addResult = await github.graphql(`
-                mutation($projectId: ID!, $contentId: ID!) {
-                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
-                    item { id }
+              try {
+                const addResult = await github.graphql(`
+                  mutation($projectId: ID!, $contentId: ID!) {
+                    addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                      item { id }
+                    }
                   }
+                `, { projectId: PROJECT_ID, contentId: nodeId });
+                item = { id: addResult.addProjectV2ItemById.item.id, fieldValues: { nodes: [] } };
+              } catch (e) {
+                if (e.message?.includes("Content already exists")) {
+                  core.info("Race condition: item added by concurrent workflow, re-fetching...");
+                  const retry = await github.graphql(`
+                    query($nodeId: ID!) {
+                      node(id: $nodeId) {
+                        ... on PullRequest {
+                          projectItems(first: 10) {
+                            nodes {
+                              id
+                              project { id }
+                              fieldValues(first: 20) {
+                                nodes {
+                                  ... on ProjectV2ItemFieldSingleSelectValue {
+                                    field { ... on ProjectV2SingleSelectField { name } }
+                                    optionId
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  `, { nodeId });
+                  item = retry.node.projectItems.nodes.find(i => i.project.id === PROJECT_ID);
+                  if (!item) throw new Error("Item still not found after re-fetch");
+                } else {
+                  throw e;
                 }
-              `, { projectId: PROJECT_ID, contentId: nodeId });
-              item = { id: addResult.addProjectV2ItemById.item.id, fieldValues: { nodes: [] } };
+              }
             }
 
             const itemId = item.id;
