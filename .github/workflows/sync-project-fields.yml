@@ -3,7 +3,7 @@ name: Sync PR to Project
 on:
   workflow_call:
     secrets:
-      PROJECT_TOKEN:
+      PROJECT_TRACKER_GH_PAT:
         required: true
 
 jobs:
@@ -13,9 +13,9 @@ jobs:
     steps:
       - uses: actions/github-script@v7
         env:
-          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+          PROJECT_TRACKER_GH_PAT: ${{ secrets.PROJECT_TRACKER_GH_PAT }}
         with:
-          github-token: ${{ secrets.PROJECT_TOKEN }}
+          github-token: ${{ secrets.PROJECT_TRACKER_GH_PAT }}
           script: |
             // --- Config ---
             const PROJECT_ID = "PVT_kwDODoEWqs4BRs78";
