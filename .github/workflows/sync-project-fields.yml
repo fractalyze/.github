@@ -1,0 +1,220 @@
+name: Sync PR to Project
+
+on:
+  workflow_call:
+    secrets:
+      PROJECT_TRACKER_GH_PAT:
+        required: true
+
+jobs:
+  sync:
+    if: >-
+      github.actor != 'fractalyze-dev' &&
+      (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          PROJECT_TRACKER_GH_PAT: ${{ secrets.PROJECT_TRACKER_GH_PAT }}
+        with:
+          github-token: ${{ secrets.PROJECT_TRACKER_GH_PAT }}
+          script: |
+            // --- Config ---
+            const PROJECT_ID = "PVT_kwDODoEWqs4BRs78";
+            const FIELDS = {
+              status:    "PVTSSF_lADODoEWqs4BRs78zg_c_rs",
+              level:     "PVTSSF_lADODoEWqs4BRs78zg_c_sQ",
+              sprint:    "PVTSSF_lADODoEWqs4BRs78zg_dCFQ",
+              month:     "PVTSSF_lADODoEWqs4BRs78zg_mUtI",
+              objective: "PVTSSF_lADODoEWqs4BRs78zg_c_sU",
+            };
+            const STATUS = {
+              draft:     "531eaf9f",
+              inReview:  "fb6b2da5",
+              merged:    "a9e5cb8f",
+              closed:    "8990ac4a",
+            };
+            const LEVEL_WEEKLY_TASK = "8517767d";
+            const OBJ_2026_H1 = "327e96ee";
+
+            // Sprint options: W09-W17
+            const SPRINT_OPTIONS = {
+              "W09": "2ce60dbf", "W10": "62c5065c", "W11": "152e0b0d",
+              "W12": "08362f51", "W13": "8f35d6c5", "W14": "ff5b6559",
+              "W15": "80afe86d", "W16": "51cca2e7", "W17": "3f28c3c8",
+            };
+
+            // Month options: 2026-01 ~ 2026-12
+            const MONTH_OPTIONS = {
+              "2026-01": "d4bd84f1", "2026-02": "fa557517", "2026-03": "331a1cf9",
+              "2026-04": "5cee8bad", "2026-05": "9356c9f7", "2026-06": "5f94361d",
+              "2026-07": "2c1a038f", "2026-08": "4f11fd82", "2026-09": "3af7f26f",
+              "2026-10": "19326400", "2026-11": "6607d0aa", "2026-12": "d38bedc3",
+            };
+
+            // --- Helpers ---
+            function getISOWeek(date) {
+              const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+              d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+              const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+              const week = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+              return `W${String(week).padStart(2, "0")}`;
+            }
+
+            function getCurrentMonth() {
+              const now = new Date();
+              const y = now.getUTCFullYear();
+              const m = String(now.getUTCMonth() + 1).padStart(2, "0");
+              return `${y}-${m}`;
+            }
+
+            async function updateField(itemId, fieldId, optionId) {
+              await github.graphql(`
+                mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                  updateProjectV2ItemFieldValue(input: {
+                    projectId: $projectId, itemId: $itemId, fieldId: $fieldId,
+                    value: { singleSelectOptionId: $optionId }
+                  }) { projectV2Item { id } }
+                }
+              `, { projectId: PROJECT_ID, itemId, fieldId, optionId });
+            }
+
+            // --- Main ---
+            const pr = context.payload.pull_request;
+            const action = context.payload.action;
+            const nodeId = pr.node_id;
+
+            core.info(`PR #${pr.number} action=${action} draft=${pr.draft} merged=${pr.merged} state=${pr.state}`);
+
+            // Find project item for this PR
+            const result = await github.graphql(`
+              query($nodeId: ID!) {
+                node(id: $nodeId) {
+                  ... on PullRequest {
+                    projectItems(first: 10) {
+                      nodes {
+                        id
+                        project { id }
+                        fieldValues(first: 20) {
+                          nodes {
+                            ... on ProjectV2ItemFieldSingleSelectValue {
+                              field { ... on ProjectV2SingleSelectField { name } }
+                              optionId
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `, { nodeId });
+
+            let item = result.node.projectItems.nodes.find(i => i.project.id === PROJECT_ID);
+
+            // If not in project yet, add it (handle race condition with concurrent workflows)
+            if (!item) {
+              core.info("PR not in project, adding...");
+              try {
+                const addResult = await github.graphql(`
+                  mutation($projectId: ID!, $contentId: ID!) {
+                    addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                      item { id }
+                    }
+                  }
+                `, { projectId: PROJECT_ID, contentId: nodeId });
+                item = { id: addResult.addProjectV2ItemById.item.id, fieldValues: { nodes: [] } };
+              } catch (e) {
+                if (e.message?.includes("Content already exists")) {
+                  core.info("Race condition: item added by concurrent workflow, re-fetching...");
+                  const retry = await github.graphql(`
+                    query($nodeId: ID!) {
+                      node(id: $nodeId) {
+                        ... on PullRequest {
+                          projectItems(first: 10) {
+                            nodes {
+                              id
+                              project { id }
+                              fieldValues(first: 20) {
+                                nodes {
+                                  ... on ProjectV2ItemFieldSingleSelectValue {
+                                    field { ... on ProjectV2SingleSelectField { name } }
+                                    optionId
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  `, { nodeId });
+                  item = retry.node.projectItems.nodes.find(i => i.project.id === PROJECT_ID);
+                  if (!item) throw new Error("Item still not found after re-fetch");
+                } else {
+                  throw e;
+                }
+              }
+            }
+
+            const itemId = item.id;
+
+            // Parse existing fields
+            const existing = {};
+            for (const fv of item.fieldValues?.nodes ?? []) {
+              if (fv.field) existing[fv.field.name] = fv.optionId;
+            }
+
+            // Determine target status
+            let targetStatus;
+            if (action === "closed" && pr.merged) {
+              targetStatus = STATUS.merged;
+            } else if (action === "closed") {
+              targetStatus = STATUS.closed;
+            } else if (pr.draft) {
+              targetStatus = STATUS.draft;
+            } else {
+              targetStatus = STATUS.inReview;
+            }
+
+            // Always update Status
+            core.info(`Setting Status -> ${targetStatus}`);
+            await updateField(itemId, FIELDS.status, targetStatus);
+
+            // Set Level if missing
+            if (!existing["Level"]) {
+              core.info("Setting Level -> Weekly Task");
+              await updateField(itemId, FIELDS.level, LEVEL_WEEKLY_TASK);
+            }
+
+            // Set Objective if missing
+            if (!existing["Objective"]) {
+              core.info("Setting Objective -> 2026-H1");
+              await updateField(itemId, FIELDS.objective, OBJ_2026_H1);
+            }
+
+            // Set Sprint if missing
+            if (!existing["Sprint"]) {
+              const sprint = getISOWeek(new Date());
+              const sprintOpt = SPRINT_OPTIONS[sprint];
+              if (sprintOpt) {
+                core.info(`Setting Sprint -> ${sprint}`);
+                await updateField(itemId, FIELDS.sprint, sprintOpt);
+              } else {
+                core.warning(`Sprint ${sprint} not in options, skipping`);
+              }
+            }
+
+            // Set Month if missing
+            if (!existing["Month"]) {
+              const month = getCurrentMonth();
+              const monthOpt = MONTH_OPTIONS[month];
+              if (monthOpt) {
+                core.info(`Setting Month -> ${month}`);
+                await updateField(itemId, FIELDS.month, monthOpt);
+              } else {
+                core.warning(`Month ${month} not in options, skipping`);
+              }
+            }
+
+            core.info("Done");
