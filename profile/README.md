@@ -37,6 +37,22 @@ Just as [PyTorch] + [XLA] freed ML engineers from manual GPU tuning, [Zorch] + [
 
 Explore our [blog] and [gitbook] to understand how we're accelerating the path to a verifiable world where proof replaces trust.
 
+## Supported by
+
+<div align="center">
+  <a href="https://ethereum.foundation">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/ef-logo-light.svg" />
+      <source media="(prefers-color-scheme: light)" srcset="./assets/ef-logo-dark.svg" />
+      <img alt="Ethereum Foundation" src="./assets/ef-logo-dark.svg" height="50" />
+    </picture>
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://www.nvidia.com/en-us/startups/">
+    <img alt="NVIDIA Inception Program" src="./assets/nvidia-inception-badge.png" height="80" />
+  </a>
+</div>
+
 <!-- Reference Links -->
 [Fractalyze]: https://fractalyze.io
 [ZKX]: https://github.com/fractalyze/zkx
