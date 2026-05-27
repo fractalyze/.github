@@ -1,0 +1,34 @@
+name: "Documentation"
+description: "Something in the docs is wrong, missing, or unclear."
+title: "docs: <one-line summary>"
+labels: ["type:docs"]
+body:
+  - type: input
+    id: doc
+    attributes:
+      label: Affected document
+      description: Repo-relative path or a stable URL.
+      placeholder: "docs/README.md or https://…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong or missing
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix
+
+  - type: textarea
+    id: knowledge
+    attributes:
+      label: Relevant knowledge
+      description: |
+        Wiki link or sanitized excerpt from personal notes. The /create-issue
+        skill bundles this automatically; if you're filing from the web UI,
+        leave blank or paste manually.
