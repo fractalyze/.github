@@ -24,6 +24,25 @@ body:
     attributes:
       label: Suggested fix
 
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: |
+        Which part of the system these docs cover. The
+        /workflow:create-issue skill maps the pick to an `area:*` label.
+        - `zkvm` — vendor / version / subphase (SP1, OpenVM, ZisK)
+        - `compiler` — zk compiler stack (zk_dtypes, prime_ir, stablehlo, zkx, jax fork)
+        - `downstream` — proof generator / partner consumer
+        - `tooling` — build / CI / dev infra
+      options:
+        - zkvm
+        - compiler
+        - downstream
+        - tooling
+    validations:
+      required: false
+
   - type: textarea
     id: knowledge
     attributes:
