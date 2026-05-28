@@ -82,6 +82,7 @@ body:
         - `downstream` — proof generator / partner consumer
         - `tooling` — build / CI / dev infra
       options:
+        - "none / unsure"
         - zkvm
         - compiler
         - downstream
