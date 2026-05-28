@@ -68,6 +68,27 @@ body:
       description: Excerpts only — no scratch-dir paths or absolute home-dir paths the reviewer cannot open.
       render: text
 
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: |
+        Which part of the system this belongs to. The
+        /workflow:create-issue skill maps the pick to an `area:*` label;
+        a repo may define finer areas (e.g. riscv-witness `area:sp1`) in
+        its own templates.
+        - `zkvm` — vendor / version / subphase (SP1, OpenVM, ZisK)
+        - `compiler` — zk compiler stack (zk_dtypes, prime_ir, stablehlo, zkx, jax fork)
+        - `downstream` — proof generator / partner consumer
+        - `tooling` — build / CI / dev infra
+      options:
+        - zkvm
+        - compiler
+        - downstream
+        - tooling
+    validations:
+      required: false
+
   - type: input
     id: parent
     attributes:
