@@ -1,0 +1,71 @@
+name: "Feature request"
+description: "Propose new functionality. Alternatives + why are required — pick this template only after you've considered other paths."
+title: "feat: <one-line summary>"
+labels: ["type:feat"]
+body:
+  - type: checkboxes
+    id: pre-check
+    attributes:
+      label: Pre-submission checklist
+      options:
+        - label: I have searched the existing issues and this is not a duplicate.
+          required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / problem
+      description: What problem are you trying to solve? State the problem before the solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed solution
+      description: Concrete behavior, API shape, or config — not a vague direction.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: List at least one alternative you rejected and why.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why this approach
+      description: Rationale and tradeoffs against the alternatives above.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: |
+        Checkbox list. GitHub shows N/M completed in the issue header,
+        so leave blank if you have no criteria — a prefilled `value:`
+        would make every untouched submission show "0/2 complete".
+      placeholder: |
+        - [ ] criterion 1
+        - [ ] criterion 2
+
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Links to prior PRs, papers, design docs, related issues.
+
+  - type: textarea
+    id: knowledge
+    attributes:
+      label: Relevant knowledge
+      description: |
+        Wiki link or sanitized excerpt from personal notes. The /create-issue
+        skill bundles this automatically; if you're filing from the web UI,
+        leave blank or paste manually.
