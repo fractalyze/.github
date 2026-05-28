@@ -68,6 +68,27 @@ body:
       description: Excerpts only — no scratch-dir paths or absolute home-dir paths the reviewer cannot open.
       render: text
 
+  - type: input
+    id: parent
+    attributes:
+      label: Parent issue
+      description: |
+        Issue number or full URL of the tracking / parent issue this bug
+        belongs to, if any. Same-repo form: `#1234`. Cross-repo form:
+        `https://github.com/<owner>/<repo>/issues/1234`. The
+        /workflow:create-issue skill registers the sub-issue link
+        automatically when filed via the CLI.
+      placeholder: "#1234 or https://github.com/<owner>/<repo>/issues/1234"
+
+  - type: input
+    id: milestone
+    attributes:
+      label: Milestone
+      description: |
+        Existing milestone name to attach this bug to. Leave blank for
+        one-off bugs that don't belong to a milestone.
+      placeholder: "e.g. sp1: v5.0.0"
+
   - type: textarea
     id: knowledge
     attributes:
