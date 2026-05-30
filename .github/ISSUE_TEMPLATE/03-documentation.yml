@@ -1,7 +1,7 @@
 name: "Documentation"
 description: "Something in the docs is wrong, missing, or unclear."
 title: "docs: <one-line summary>"
-labels: ["type:docs"]
+type: Task
 body:
   - type: input
     id: doc

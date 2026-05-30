@@ -1,7 +1,7 @@
 name: "Feature request"
 description: "Propose new functionality. Alternatives + why are required — pick this template only after you've considered other paths."
 title: "feat: <one-line summary>"
-labels: ["type:feat"]
+type: Feature
 body:
   - type: checkboxes
     id: pre-check
