@@ -1,0 +1,39 @@
+name: Upload bazel test logs
+description: >-
+  Collect bazel's runner-local test.log / test.xml (the gtest output the CI
+  stream drops) and upload it as an artifact. Run on job failure so an
+  intermittent test failure stays diagnosable after the fact.
+
+inputs:
+  name:
+    description: >-
+      Artifact name. Must be unique within a workflow run, so suffix it per
+      lane / matrix leg (e.g. bazel-test-logs-gpu).
+    required: false
+    default: bazel-test-logs
+
+runs:
+  using: composite
+  steps:
+    - name: Collect bazel test logs
+      shell: bash
+      env:
+        ARTIFACT_NAME: ${{ inputs.name }}
+      run: |
+        dest="$RUNNER_TEMP/$ARTIFACT_NAME"
+        mkdir -p "$dest"
+        # bazel-testlogs is a runner-local symlink into the output base; the
+        # gtest output for a failed test lives in its test.log.
+        src="$(readlink -f bazel-testlogs || true)"
+        if [ -d "$src" ]; then
+          (cd "$src" && find . \( -name test.log -o -name test.xml \) -print0 |
+            xargs -0 -r cp --parents -t "$dest")
+        fi
+
+    - name: Upload bazel test logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ runner.temp }}/${{ inputs.name }}
+        if-no-files-found: ignore
+        retention-days: 14
