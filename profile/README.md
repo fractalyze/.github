@@ -8,7 +8,9 @@
 
 <br/>
 
-**The computing layer for cryptography.** We build, optimize, and operate production cryptography systems, transforming trust-based digital systems into cryptographically verifiable infrastructure.
+**The computing layer for cryptography.**
+
+We build, optimize, and operate production cryptography systems, transforming trust-based digital systems into cryptographically verifiable infrastructure.
 
 ## The Computing Layer
 
