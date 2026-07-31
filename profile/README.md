@@ -42,8 +42,6 @@ Build cryptographic applications in Python. Compile them into highly optimized e
 
 **[PrimeIR]** — An [MLIR] layer that lowers the optimized graph into kernels and tunes the generated code for each CPU and GPU target.
 
-The optimizations that matter here are global. Lazy reduction and fusion are decisions taken across a whole computation graph, not local rewrites of a snippet — which is why this is a compiler rather than a collection of hand-tuned kernels.
-
 Provers and proving systems built on this stack: [sp1-zorch], [openvm-zorch], [zisk-zorch], [pico-zorch], [groth16-zorch], [bellman-zorch], [flock-zorch] and [accumulation-zorch].
 
 ## Benchmarks
