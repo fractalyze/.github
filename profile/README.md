@@ -8,41 +8,55 @@
 
 <br/>
 
-**[Fractalyze] is the computing layer for cryptography.** We build, optimize, and operate production cryptography systems, transforming trust-based digital systems into cryptographically verifiable infrastructure.
+# The computing layer for cryptography
 
-Advanced cryptography is moving from research into production, powering privacy, verifiable computation, and trust-minimized systems. It is still out of reach for most teams: the computation is orders of magnitude too expensive, and the engineering that makes it cheap is specialized, manual, and slow. This organization hosts the stack we built to close that gap — a Python frontend ([Zorch]), field-native primitives ([FRX][hash-frx]), and a compiler ([ZKX], [PrimeIR]) that lowers both into optimized execution for whatever hardware you target.
+We build, optimize, and operate production cryptography systems, transforming trust-based digital systems into cryptographically verifiable infrastructure.
 
-## From Craft to Compiler
+## The Computing Layer
 
-<div align="center">
-  <img src="./assets/ai-compiler.png" alt="AI Compiler Evolution" width="60%" />
-  <br/>
-  <img src="./assets/zk-compiler.png" alt="ZK Compiler Evolution" width="60%" />
-</div>
+A unified platform that automatically transforms high-level cryptographic applications into optimized execution for any target hardware.
 
-Just as [PyTorch] + [XLA] freed ML engineers from manual GPU tuning, [Zorch] + [ZKX]/[PrimeIR] frees cryptography engineers from manual proving-system engineering.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/computing-layer-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/computing-layer-light.png" />
+  <img alt="Today, an application reaches the hardware through five specialist teams, five rounds of handwork and a hardware-specific implementation. With Fractalyze, it reaches the same hardware through one orchestration and compiler layer." src="./assets/computing-layer-light.png" />
+</picture>
 
-The optimizations that matter here are global. Lazy reduction and kernel fusion are decisions taken across a whole computation graph, not local rewrites of a snippet — which is why this is a compiler rather than a collection of hand-tuned kernels.
+Today, getting cryptography into production means protocol, compiler, GPU and runtime engineers working in separate silos, months of manual integration and tuning, and starting over for every new scheme or hardware target. We replace that with one compiler that optimizes and generates execution code, a runtime that handles execution and memory, and orchestration that scales the same workload across CPU, GPU, TPU and FPGA.
 
-## Core Projects
+## The Compiler
 
-<div align="center">
-  <img src="./assets/compiler-pipeline.png" alt="Compiler Pipeline" width="60%" />
-</div>
+Build cryptographic applications in Python. Compile them into highly optimized execution for modern hardware.
 
-**[Zorch]**: A Python-first frontend for cryptographic computation. Inspired by [PyTorch]'s ergonomics, [Zorch] lets researchers write the frontend — circuits, proving schemes, zkVMs — in intuitive Python, while the compiler stack below generates the optimized backend.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/pipeline-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/pipeline-light.png" />
+  <img alt="Pipeline: Zorch, FRX, StableHLO, XLA, PrimeIR, CPU and GPU." src="./assets/pipeline-light.png" />
+</picture>
 
-**[ZKX]**: ZKX (ZK Accelerator) is a compiler for cryptographic computation, analogous to [XLA] for machine learning. It optimizes end to end across proving schemes, custom circuits, and zkVMs, automatically targeting multiple hardware backends (GPU, TPU, FPGA, mobile GPU).
+**[Zorch]** — Build a SNARK in Python: define your IOP rounds and compose them. You write the protocol, and never touch the kernels.
 
-**[PrimeIR]**: PrimeIR (Prime Intermediate Representation) is an intermediate language based on **[MLIR]** (Multi-Level Intermediate Representation), dedicated to cryptographic optimization — a level at which `a * b % p` is field arithmetic rather than three integer instructions.
+**FRX** — Fractalyze's fork of JAX. Traces your Python into a graph and lowers it to StableHLO, carrying field types, not floats.
 
-**FRX**: Field-native primitives, each lowering to a single fused kernel — [hashes][hash-frx], with signatures and encryption alongside.
+**[XLA]** — Runs a full optimization pipeline over the whole graph, from fusion and layout to lazy reduction, treating it as one program.
 
-Provers built on this stack, each byte-matched against its reference implementation: [sp1-zorch], [openvm-zorch], [zisk-zorch], [pico-zorch], [groth16-zorch] and [bellman-zorch].
+**[PrimeIR]** — An [MLIR] layer that lowers the optimized graph into kernels and tunes the generated code for each CPU and GPU target.
 
-## Learn More
+The optimizations that matter here are global. Lazy reduction and fusion are decisions taken across a whole computation graph, not local rewrites of a snippet — which is why this is a compiler rather than a collection of hand-tuned kernels.
 
-Read the [blog] and the [gitbook], or see what the [compiler] does and what it measures.
+## Benchmarks
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/benchmark-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/benchmark-light.png" />
+  <img alt="Eleven measured workloads plotted as our speed relative to the baseline, from 3.09x down to 0.94x, crossing parity between msm_bn254_g2 and sp1_logup_gkr." src="./assets/benchmark-light.png" />
+</picture>
+
+Our speed as a multiple of the baseline's, measured against ICICLE, SP1 and Binius — parity at 1, including the two workloads where we are still behind. Provers built on this stack are byte-matched against their reference implementations. Current figures and what each run measured: [fractalyze.io/compiler][compiler].
+
+---
+
+Read the [blog] and the [docs], or see the whole picture at [fractalyze.io][Fractalyze].
 
 ## Supported by
 
@@ -62,19 +76,10 @@ Read the [blog] and the [gitbook], or see what the [compiler] does and what it m
 
 <!-- Reference Links -->
 [Fractalyze]: https://fractalyze.io
-[ZKX]: https://fractalyze.io/compiler
-[PrimeIR]: https://github.com/fractalyze/prime-ir
+[compiler]: https://fractalyze.io/compiler
 [Zorch]: https://github.com/fractalyze/zorch
-[hash-frx]: https://github.com/fractalyze/hash-frx
-[sp1-zorch]: https://github.com/fractalyze/sp1-zorch
-[openvm-zorch]: https://github.com/fractalyze/openvm-zorch
-[zisk-zorch]: https://github.com/fractalyze/zisk-zorch
-[pico-zorch]: https://github.com/fractalyze/pico-zorch
-[groth16-zorch]: https://github.com/fractalyze/groth16-zorch
-[bellman-zorch]: https://github.com/fractalyze/bellman-zorch
-[PyTorch]: https://pytorch.org
+[PrimeIR]: https://github.com/fractalyze/prime-ir
 [XLA]: https://openxla.org/xla
 [MLIR]: https://mlir.llvm.org
 [blog]: https://www.fractalyze.io/blog
-[gitbook]: https://fractalyze.gitbook.io/intro
-[compiler]: https://fractalyze.io/compiler
+[docs]: https://fractalyze.gitbook.io/intro
