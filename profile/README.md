@@ -44,6 +44,8 @@ Build cryptographic applications in Python. Compile them into highly optimized e
 
 The optimizations that matter here are global. Lazy reduction and fusion are decisions taken across a whole computation graph, not local rewrites of a snippet — which is why this is a compiler rather than a collection of hand-tuned kernels.
 
+Provers and proving systems built on this stack: [sp1-zorch], [openvm-zorch], [zisk-zorch], [pico-zorch], [groth16-zorch], [bellman-zorch], [flock-zorch] and [accumulation-zorch].
+
 ## Benchmarks
 
 <picture>
@@ -52,7 +54,7 @@ The optimizations that matter here are global. Lazy reduction and fusion are dec
   <img alt="Eleven measured workloads plotted as our speed relative to the baseline, from 3.09x down to 0.94x, crossing parity between msm_bn254_g2 and sp1_logup_gkr." src="./assets/benchmark-light.png" />
 </picture>
 
-Our speed as a multiple of the baseline's, measured against ICICLE, SP1 and Binius — parity at 1, including the two workloads where we are still behind. Provers built on this stack are byte-matched against their reference implementations. Current figures and what each run measured: [fractalyze.io/compiler][compiler].
+Our speed as a multiple of the baseline's, measured against ICICLE, SP1 and Binius — parity at 1, including the two workloads where we are still behind.
 
 ---
 
@@ -76,9 +78,16 @@ Read the [blog] and the [docs], or see the whole picture at [fractalyze.io][Frac
 
 <!-- Reference Links -->
 [Fractalyze]: https://fractalyze.io
-[compiler]: https://fractalyze.io/compiler
 [Zorch]: https://github.com/fractalyze/zorch
 [PrimeIR]: https://github.com/fractalyze/prime-ir
+[sp1-zorch]: https://github.com/fractalyze/sp1-zorch
+[openvm-zorch]: https://github.com/fractalyze/openvm-zorch
+[zisk-zorch]: https://github.com/fractalyze/zisk-zorch
+[pico-zorch]: https://github.com/fractalyze/pico-zorch
+[groth16-zorch]: https://github.com/fractalyze/groth16-zorch
+[bellman-zorch]: https://github.com/fractalyze/bellman-zorch
+[flock-zorch]: https://github.com/fractalyze/flock-zorch
+[accumulation-zorch]: https://github.com/fractalyze/accumulation-zorch
 [XLA]: https://openxla.org/xla
 [MLIR]: https://mlir.llvm.org
 [blog]: https://www.fractalyze.io/blog
