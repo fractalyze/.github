@@ -42,7 +42,7 @@ WIDTH, SCALE = 1920, 2
 # to the element that is the drawing itself, so that the README can supply its
 # own headings and prose.
 TARGETS = [
-    ("computing-layer", "/", "The Computing Layer for Cryptography", "div.grid"),
+    ("computing-layer", "/", "From Complexity to Production", "div.grid"),
     ("pipeline", "/compiler", "From Python to the Hardware", "ol"),
     ("benchmark", "/compiler", "The Verifiable Difference a Compiler Makes", "div.rounded-2xl"),
 ]
@@ -70,6 +70,13 @@ DARK_CSS = """
      the hardware bar. Same element carries both classes. */
   .bg-accent.text-ink, .bg-accent-blue.text-ink,
   .bg-accent .text-ink, .bg-accent-blue .text-ink { color: #0d1117 !important; }
+  /* The one accent that is not opaque. Every other accent block keeps its own
+     colour through the sweep, but this one is 40% over whatever is behind it,
+     and behind it here is near-black, which desaturates it to a grey. It ends up
+     duller than the eleven chips it is supposed to answer, inverting the
+     emphasis the pair is drawn to make. Deep rather than pale, since the text on
+     it goes light in this pass where the chips' text goes dark. */
+  .bg-accent\\/40 { background-color: #2f2b4d !important; }
   /* The pipeline's connector is a black hairline and would vanish. The black
      panel opposite the Today one is a div and must stay black. */
   span.bg-ink { background-color: #6e7681 !important; }
