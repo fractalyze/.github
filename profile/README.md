@@ -19,7 +19,7 @@ A unified platform that automatically transforms high-level cryptographic applic
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/fractalyze/.github/main/profile/assets/computing-layer-dark.png" />
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/fractalyze/.github/main/profile/assets/computing-layer-light.png" />
-  <img alt="Today, an application reaches the hardware through five specialist teams, five rounds of handwork and a hardware-specific implementation. With Fractalyze, it reaches the same hardware through one orchestration and compiler layer." src="https://raw.githubusercontent.com/fractalyze/.github/main/profile/assets/computing-layer-light.png" />
+  <img alt="Today, a set of requirements reaches a production system through ten rounds of specialist work and handwork and a hardware-specific implementation. With Fractalyze, the same requirements reach the same production system through one compiler and orchestration layer." src="https://raw.githubusercontent.com/fractalyze/.github/main/profile/assets/computing-layer-light.png" />
 </picture>
 
 Today, getting confidential and verifiable systems into production means cryptography, security, compiler, GPU and infrastructure specialists working in separate silos, months of manual integration and tuning, and starting over for every new scheme or hardware target. We replace that with one compiler that optimizes and generates execution code, a runtime that handles execution and memory, and orchestration that scales the same workload across CPU, GPU, TPU and FPGA.
