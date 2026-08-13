@@ -14,7 +14,7 @@ We build, optimize, and operate production systems, transforming trust-based dig
 
 ## The Computing Layer
 
-A unified platform that automatically transforms high-level cryptographic applications into optimized execution for any target hardware.
+We bring confidential and verifiable systems to production, from architecture and implementation to optimization and operations.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/fractalyze/.github/main/profile/assets/computing-layer-dark.png" />
