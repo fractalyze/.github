@@ -1,0 +1,100 @@
+name: Check test budgets
+description: >-
+  Fail a build when a bazel test target's declared budget stops covering what CI
+  measured. Reads per-shard durations from the build event file and budgets from
+  `bazel query`, and flags any target at or above a fraction of its budget.
+
+inputs:
+  bep:
+    description: >-
+      Path to the build event json file the test step wrote
+      (`--build_event_json_file=...`). A missing or empty file is not an error:
+      the test step going red is the failure worth reading, and this check
+      stands down rather than burying it.
+    required: true
+  leg:
+    description: >-
+      Which CI leg produced the build event file (`cpu`, `gpu`, …). Appears in
+      the table and in every annotation, because a budget covers the slowest
+      leg a target runs on and a reader needs to know which one this was.
+    required: false
+    default: cpu
+  repo-root:
+    description: >-
+      The consuming repo's checkout. This action ships outside it, so the
+      workspace cannot be inferred from the script's own location.
+    required: false
+    default: .
+  threshold:
+    description: >-
+      Fraction of budget a target may use before it is flagged. Half is the
+      default because it is the smallest round headroom that survives a shared
+      remote executor's run-to-run spread.
+    required: false
+    default: "0.5"
+  bazelrc:
+    description: >-
+      Passed through to the `bazel query` that reads budgets, for repos whose
+      CI config is not auto-imported (`--bazelrc=.bazelrc.ci`).
+    required: false
+    default: ""
+  mode:
+    description: >-
+      `fail` exits non-zero on a violation; `warn` annotates and exits 0. Left
+      empty it is chosen from the event — see the step below, which allowlists
+      the events that gate rather than denylisting the ones that do not.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    # An allowlist, not `event == 'pull_request' && 'warn' || 'fail'`. That form
+    # sends every *other* event down the failing path, so a `workflow_dispatch`
+    # or a future trigger hard-fails on durations nobody produced for it. Naming
+    # the gating events instead means a new trigger is advisory until someone
+    # decides otherwise.
+    - name: Resolve mode
+      shell: bash
+      env:
+        REQUESTED: ${{ inputs.mode }}
+        EVENT: ${{ github.event_name }}
+      run: |
+        set -euo pipefail
+        if [ -n "$REQUESTED" ]; then
+          mode="$REQUESTED"
+        else
+          case "$EVENT" in
+            # A pull request warns: the author is still moving, and a budget
+            # that drifts mid-review should annotate rather than block.
+            pull_request|pull_request_target) mode=warn ;;
+            # A push to a long-lived branch is the gate — this is the run whose
+            # durations everyone else inherits.
+            push|merge_group) mode=fail ;;
+            # Anything else — dispatch, schedule, a trigger that does not exist
+            # yet — is advisory.
+            *) mode=warn ;;
+          esac
+        fi
+        echo "mode=$mode" >> "$GITHUB_ENV"
+        echo "resolved mode=$mode for event=$EVENT"
+
+    - name: Check test budgets
+      shell: bash
+      env:
+        BEP: ${{ inputs.bep }}
+        LEG: ${{ inputs.leg }}
+        REPO_ROOT: ${{ inputs.repo-root }}
+        THRESHOLD: ${{ inputs.threshold }}
+        BAZELRC: ${{ inputs.bazelrc }}
+      run: |
+        set -euo pipefail
+        args=(
+          --bep "$BEP"
+          --leg "$LEG"
+          --repo-root "$REPO_ROOT"
+          --threshold "$THRESHOLD"
+          --mode "$mode"
+        )
+        [ -n "$BAZELRC" ] && args+=(--bazelrc "$BAZELRC")
+        python3 "${{ github.action_path }}/check_test_budgets.py" "${args[@]}"
