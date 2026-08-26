@@ -1,0 +1,35 @@
+name: check-test-budgets action
+
+on:
+  pull_request:
+    paths:
+      - '.github/actions/check-test-budgets/**'
+      - '.github/workflows/check-test-budgets-action.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .github/actions/check-test-budgets
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # The action itself imports only the standard library — a consuming
+      # runner needs nothing installed. absl is the test harness's dependency,
+      # not the checker's, so it is installed here and nowhere else.
+      - name: Install the test harness
+        run: pip install absl-py
+
+      - name: Run the checker's tests
+        env:
+          PYTHONPATH: .
+        run: python3 tests/check_test_budgets_test.py
+
+      # A consuming repo discovers a malformed action.yml only when its own CI
+      # run fails, in a repo whose maintainer did not write it.
+      - name: The action definition parses
+        run: python3 -c "import yaml,sys; yaml.safe_load(open('action.yml')); print('action.yml ok')"
