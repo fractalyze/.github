@@ -18,11 +18,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      # The action itself imports only the standard library — a consuming
-      # runner needs nothing installed. absl is the test harness's dependency,
-      # not the checker's, so it is installed here and nowhere else.
-      - name: Install the test harness
-        run: pip install absl-py
+      # Neither of these is the action's. It imports only the standard library,
+      # so a consuming runner installs nothing: absl belongs to the test
+      # harness and pyyaml to the definition check below. Keeping that straight
+      # matters — a dependency added here reads as one the consumers inherit.
+      - name: Install what this workflow needs
+        run: pip install absl-py pyyaml
 
       - name: Run the checker's tests
         env:
